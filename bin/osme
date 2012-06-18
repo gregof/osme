@@ -1,0 +1,43 @@
+#!/usr/bin/env node
+
+var COUNTRY_CODE = '';
+var ADMIN_LEVEL = 3;
+var EPSILON = 200;
+
+var options = process.argv.slice(2);
+while (options.length > 0) {
+    var v = options.shift();
+    switch (v) {
+        case "-cc":
+            COUNTRY_CODE = options.shift();
+            break;
+        case "-l":
+            ADMIN_LEVEL = options.shift();
+            break;
+        case "-e":
+            EPSILON = options.shift();
+            break;
+        case '-h':
+        case '--help':
+            console.log([
+                'Options:',
+                '  -h, --help      print help',
+                '  -cc             country code',
+                '  -l              admin_level [3]',
+                '  -e              simplification epsilon [200]'
+            ].join('\n'));
+            process.exit(1);
+            break;
+    }
+}
+
+if (!COUNTRY_CODE) {
+    console.log('Error: country code is required');
+    process.exit(1);
+}
+
+console.log('COUNTRY_CODE = "' + COUNTRY_CODE + '"');
+console.log('ADMIN_LEVEL = "' + ADMIN_LEVEL + '"');
+console.log('EPSILON = "' + EPSILON + '"');
+
+require('./../lib').export(COUNTRY_CODE, ADMIN_LEVEL, EPSILON);
