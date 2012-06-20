@@ -1,17 +1,31 @@
 #!/usr/bin/env node
 
-var COUNTRY_CODE = '';
+var COMMAND_NAME = '';
+
+var RELATION_ID = '';
+var PARENT_ID = '';
 var ADMIN_LEVEL = 3;
 var EPSILON = 200;
 
 var options = process.argv.slice(2);
+
+COMMAND_NAME = options.shift();
+
+if (['rel', 'subrel'].indexOf(COMMAND_NAME) === -1) {
+    console.log('Error: unknown command "' + COMMAND_NAME + '"');
+    process.exit(1);    
+}
+
 while (options.length > 0) {
     var v = options.shift();
     switch (v) {
-        case "-cc":
-            COUNTRY_CODE = options.shift();
+        case "-id":
+            RELATION_ID = options.shift().split(',');
             break;
-        case "-l":
+        case "-p":
+            PARENT_ID = options.shift();
+            break;
+        case "-al":
             ADMIN_LEVEL = options.shift();
             break;
         case "-e":
@@ -20,24 +34,36 @@ while (options.length > 0) {
         case '-h':
         case '--help':
             console.log([
-                'Options:',
-                '  -h, --help      print help',
-                '  -cc             country code',
-                '  -l              admin_level [3]',
-                '  -e              simplification epsilon [200]'
+                'Common options:',
+                '  -e              simplification epsilon [200]',
+                'Command:',
+                '  rel             load relation by id',
+                '    options:',
+                '      -id         id',
+                '  subrel          load sub relation by parent relation id',
+                '    options:',
+                '      -p          parent releation id',
+                '      -al         admin_level for sub relation [3]',
+                '  help            print this help'
             ].join('\n'));
             process.exit(1);
             break;
     }
 }
 
-if (!COUNTRY_CODE) {
-    console.log('Error: country code is required');
-    process.exit(1);
+if (COMMAND_NAME == 'rel') {
+    if (!RELATION_ID) {
+        console.log('Error: option \'id\' is required');
+        process.exit(1);
+    }
+
+    require('./../lib').rel(RELATION_ID, EPSILON);
 }
 
-console.log('COUNTRY_CODE = "' + COUNTRY_CODE + '"');
-console.log('ADMIN_LEVEL = "' + ADMIN_LEVEL + '"');
-console.log('EPSILON = "' + EPSILON + '"');
-
-require('./../lib').export(COUNTRY_CODE, ADMIN_LEVEL, EPSILON);
+if (COMMAND_NAME == 'subrel') {
+    if (!PARENT_ID) {
+        console.log('Error: option \'p\' is required');
+        process.exit(1);
+    }
+    require('./../lib').subrel(PARENT_ID, ADMIN_LEVEL, EPSILON);
+}
